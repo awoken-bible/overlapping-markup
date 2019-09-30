@@ -27,13 +27,13 @@ function _generateElements(text, styling, currently_open){
 }
 */
 
-function _detangle(styling){
+function _buildHierachy(styling){
   if(styling.length <= 1){ return styling; }
 
   // Sort into ascending order based on min field
   // If there are ties, put the longest element first
   // (since this will be a parent which fully contains
-  // the subsequent ones)
+  // the subsequent blocks with same min)
   styling.sort((a,b) => {
     if(a.min == b.min){
       return b.max - a.max;
@@ -44,7 +44,7 @@ function _detangle(styling){
   let result = [];
 
   function _recurse(root, to_reopen){
-    // While the next styling block is at least partially contained
+    // Consume blocks While the next one is at least partially contained
     // within this root (as opposed to being the subsequent sibling to
     // this root)
     while(styling.length && styling[0].min < root.max){
@@ -53,31 +53,32 @@ function _detangle(styling){
       if(next.max === root.max){
         // Then the next block ends at same point as current root,
         // nothing clever needs doing
-        result.push(next);
+        root.children.push(next);
       } else if(next.max > root.max){
         // then the next block continues after this root
         // split the block into 2:
 
         // One that continues until the end of this root
-        result.push({ ...next, max: root.max });
+        root.children.push({ ...next, max: root.max });
 
         // and another which starts just after this root
         to_reopen.push({ ...next, min: root.max+1});
       } else {
         // then the next block ends before the current root, so treat it
         // as if it were a new root
-        result.push(next);
-        _recurse(next, to_reopen);
+        root.children.push(_recurse({ ...next, children: [] }, to_reopen));
       }
     }
 
     // we've reached the end of this root, so append the to_reopen
     // blocks to styling
     styling = to_reopen.concat(styling);
+
+    return root;
   }
 
   while(styling.length){
-    let root = styling.shift();
+    let root = { ...styling.shift(), children: [] };
     result.push(root);
     _recurse(root, []);
   }
@@ -91,9 +92,9 @@ function StylizedText(props) {
 
   console.log("Rendering StylizedText");
 
-  let detangled = _detangle(styling);
+  let hierachy = _buildHierachy(styling);
 
-  console.dir(detangled);
+  console.dir(hierachy);
 
   /*
   // Sort into ascending order based on min field
