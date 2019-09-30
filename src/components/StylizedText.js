@@ -1,33 +1,44 @@
 import React from 'react';
 
-/*
-function _generateElements(text, styling, currently_open){
-  if(styling.length == 0){
-    return (<>{text}</>);
+function _generateElements(text, root){
+
+  console.log("Generating element for");
+  console.dir(root);
+
+  // Base case - if this is leaf node, simply wrap the corresponding
+  // section of text in the appropriate style
+  if(root.children === undefined || root.children.length === 0){
+    console.log(`Is leaf --> ${root.min} - ${root.max} : ` + text.substring(root.min, root.max));
+
+    return React.createElement(root.style.content, {}, text.substring(root.min, root.max));
   }
 
   let elements = [];
-  let first_open = styling[0].min;
 
-  if(styling[0].min > 0){
-    elements.push(<span>{text.substring(0, styling[0].max)}</span>);
+  let t_idx = root.min;
+
+  for(let c_idx = 0; c_idx < root.children.length; ++c_idx){
+    if(t_idx < root.children[c_idx].min){
+      // Then there is some extra unstyled text content before the start of the
+      // next child
+      elements.push(<>{text.substring(t_idx, root.children[c_idx].min)}</>);
+    }
+
+    elements.push(_generateElements(text, root.children[c_idx]));
+    t_idx = root.children[c_idx].max;
   }
 
-  while(true){
-    let sty = styling.unshift();
-
-    let children = _generateElements(text, styling);
-
-    children.push(<>{text.substring(sty.min, next_open)}</>);
-
-    elements.push(React.createElement(sty.content, {}, children));
+  // Then there is some extra text content outside the styling of any children
+  // of root, append it to the end
+  if(t_idx < root.max){
+    elements.push(<>{text.substring(t_idx, root.max)}</>);
   }
 
-  return elements;
+  return React.createElement(root.style.content, {}, elements);
 }
-*/
 
 function _buildHierachy(styling){
+  //debugger;
   if(styling.length <= 1){ return styling; }
 
   // Sort into ascending order based on min field
@@ -35,7 +46,7 @@ function _buildHierachy(styling){
   // (since this will be a parent which fully contains
   // the subsequent blocks with same min)
   styling.sort((a,b) => {
-    if(a.min == b.min){
+    if(a.min === b.min){
       return b.max - a.max;
     }
     return a.min - b.min;
@@ -50,11 +61,7 @@ function _buildHierachy(styling){
     while(styling.length && styling[0].min < root.max){
       let next = styling.shift();
 
-      if(next.max === root.max){
-        // Then the next block ends at same point as current root,
-        // nothing clever needs doing
-        root.children.push(next);
-      } else if(next.max > root.max){
+      if(next.max > root.max){
         // then the next block continues after this root
         // split the block into 2:
 
@@ -62,11 +69,11 @@ function _buildHierachy(styling){
         root.children.push({ ...next, max: root.max });
 
         // and another which starts just after this root
-        to_reopen.push({ ...next, min: root.max+1});
+        to_reopen.push({ ...next, min: root.max});
       } else {
         // then the next block ends before the current root, so treat it
         // as if it were a new root
-        root.children.push(_recurse({ ...next, children: [] }, to_reopen));
+        root.children.push(_recurse({ ...next, children: [] }, []));
       }
     }
 
@@ -78,6 +85,8 @@ function _buildHierachy(styling){
   }
 
   while(styling.length){
+
+
     let root = { ...styling.shift(), children: [] };
     result.push(root);
     _recurse(root, []);
@@ -96,21 +105,18 @@ function StylizedText(props) {
 
   console.dir(hierachy);
 
-  /*
-  // Sort into ascending order based on min field
-  styling.sort((a,b) => { return a.min - b.min; });
 
-  let non_overlapping = [];
+  let root = {
+    min: 0,
+    max: text.length,
+    style: { content: (props) => (<>{props.children}</>) },
+    children: hierachy,
+  };
 
-  for(let sty of styling){
-
-  }
-
-  let elements = _generateElements(text, styling, []);
-  */
+  let elements = _generateElements(text, root);
 
   return (
-    <div>Hi</div>
+    <div style={{ fontFamily: 'mono' }}>{ elements }</div>
   );
 }
 

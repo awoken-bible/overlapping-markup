@@ -3,6 +3,7 @@ import { css, StyleSheet } from 'aphrodite';
 
 import StylizedText from './components/StylizedText';
 
+
 const styles = StyleSheet.create({
   red: {
     color: 'red',
@@ -11,7 +12,8 @@ const styles = StyleSheet.create({
     textDecoration: 'underline',
   },
   bold: {
-    fontWeight: 900,
+    //fontWeight: 900,
+    textDecoration: 'line-through',
   },
   paragraph: {
     display: 'block',
@@ -91,58 +93,50 @@ let styling = [
     max : 909,
     style: style_paragraph,
   },
-  { min : 896,
-    max : 925,
-    style: style_red,
-  },
+  //{ min : 896,
+  //  max : 925,
+  //  style: style_red,
+  //},
   { min : 909,
     max : 1546,
     style: style_paragraph,
   },
-  { min : 917,
-    max : 925,
-    style: style_bold,
-  },
-  { min : 917,
-    max : 930,
-    style: style_under,
-  },
+  //{ min : 917,
+  //  max : 925,
+  //  style: style_bold,
+  //},
+  //{ min : 917,
+  //  max : 930,
+  //  style: style_under,
+  //},
   { min : 1546,
     max : 2155,
     style: style_paragraph,
   },
 ];
 
-
-/*
-let text = '0123456789';
-
-let styling = [
-  { min: 1,
-    max: 5,
-    style: 'under',
-  },
-  { min: 2,
-    max: 5,
-    style: 'red',
-  },
-  { min: 3,
-    max: 6,
-    style: 'bold',
-  },
-];
-*/
-
 function App(){
 
-  styling = [
-    { min:  2, max:  7 },
-    { min:  5, max:  9 },
-    { min:  8, max: 13 },
-    { min: 12, max: 20 },
-    { min: 14, max: 15 },
-    { min: 17, max: 18 },
+  /*
+  let text = '0123456789';
+  let styling = [
+    { min: 1, max: 5, style: style_under },
+    { min: 2, max: 5, style: style_red,  },
+    { min: 3, max: 6, style: style_bold, },
   ];
+*/
+
+  /*
+  let text = 'ABCDEFGHIJKLMNOPQRSTUVWXYS';
+  let styling = [
+    { id: 1, min:  2, max:  7, style: style_red,  },
+    { id: 2, min:  5, max:  9, style: style_under },
+    { id: 3, min:  8, max: 13, style: style_bold },
+    { id: 4, min: 12, max: 20, style: style_red },
+    { id: 5, min: 14, max: 15, style: style_under },
+    { id: 6, min: 17, max: 18,  style: style_under },
+  ];
+  */
 
   return (<StylizedText text={text} styling={styling}></StylizedText>);
 }
