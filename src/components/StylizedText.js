@@ -1,115 +1,115 @@
 import React from 'react';
 
-function _generateHtml(text, styling){
-  let html = '';
-
-  let t_idx = 0;
-  let unclosed_styling = [];
-  let cnt = 0;
-  while(t_idx < text.length && cnt < 30){
-    ++cnt;
-    console.log(`\n\nText idx: ${t_idx}`);
-
-    let end = text.length;
-    console.log("initial end: " + end);
-
-    ////////////////////////////
-    // Close any styling sections that end on max == t_idx
-    // Note that it may be that we have to close a styling
-    // block that is not the most recently openned - hence
-    // we track the extra blocks we had to unintentionally
-    // close by pushing them to the array `to_reopen`
-
-    console.log("Checking if should close");
-    console.log(JSON.stringify(unclosed_styling, null, 2));
-
-    let first_to_close = null;
-    for(let i = 0; i < unclosed_styling.length; ++i){
-      console.dir(unclosed_styling[i]);
-      if(unclosed_styling[i].max <= t_idx){
-        first_to_close = i;
-        break;
-      }
-    }
-
-    let to_reopen = [];
-    if(first_to_close != null){
-      while(unclosed_styling.length-1 > first_to_close){
-
-        let item = unclosed_styling.pop();
-        console.log(" force closing: ");
-        console.dir(JSON.stringify(item));
-
-        if(item.max > t_idx){
-          to_reopen.unshift(item);
-        }
-        html += item.style.close;
-      }
-      let item = unclosed_styling.pop();
-      console.log(" closing: ");
-      console.dir(JSON.stringify(item));
-      html += item.style.close;
-    } else {
-      console.log("Nothing to close");
-    }
-
-    console.log("Still open: ");
-    console.log(JSON.stringify(unclosed_styling, null, 2));
-
-
-    ///////////////////////////////
-    // Open any new styling sections, starting on min == t_idx
-
-    while(styling.length && styling[0].min == t_idx){
-      let mark = styling.shift();
-      console.log("Opening " + mark.style);
-      html += mark.style.open;
-      unclosed_styling.push(mark);
-      if(mark.max < end){ end = mark.max; }
-    }
-    if(styling.length && styling[0].min < end){
-      end = styling[0].min;
-    }
-    console.log("end to next styling: " + end);
-
-    ///////////////////////////////
-    // Re-open any styling sections we were forced to close
-    for(let x of to_reopen){
-      console.log("  repoen: " + x.style);
-      html += x.style.open;
-    }
-    unclosed_styling = unclosed_styling.concat(to_reopen);
-    for(let x of unclosed_styling){
-      if(x.max < end){ end = x.max; }
-    }
-    console.log("end to close styling: " + end);
-
-    ///////////////////////////////
-    // Add the text until the next styling change
-    html += text.substring(t_idx, end);
-    t_idx = end;
+/*
+function _generateElements(text, styling, currently_open){
+  if(styling.length == 0){
+    return (<>{text}</>);
   }
 
+  let elements = [];
+  let first_open = styling[0].min;
 
-  console.log(html);
-  return html;
+  if(styling[0].min > 0){
+    elements.push(<span>{text.substring(0, styling[0].max)}</span>);
+  }
+
+  while(true){
+    let sty = styling.unshift();
+
+    let children = _generateElements(text, styling);
+
+    children.push(<>{text.substring(sty.min, next_open)}</>);
+
+    elements.push(React.createElement(sty.content, {}, children));
+  }
+
+  return elements;
 }
+*/
+
+function _detangle(styling){
+  if(styling.length <= 1){ return styling; }
+
+  // Sort into ascending order based on min field
+  // If there are ties, put the longest element first
+  // (since this will be a parent which fully contains
+  // the subsequent ones)
+  styling.sort((a,b) => {
+    if(a.min == b.min){
+      return b.max - a.max;
+    }
+    return a.min - b.min;
+  });
+
+  let result = [];
+
+  function _recurse(root, to_reopen){
+    // While the next styling block is at least partially contained
+    // within this root (as opposed to being the subsequent sibling to
+    // this root)
+    while(styling.length && styling[0].min < root.max){
+      let next = styling.shift();
+
+      if(next.max === root.max){
+        // Then the next block ends at same point as current root,
+        // nothing clever needs doing
+        result.push(next);
+      } else if(next.max > root.max){
+        // then the next block continues after this root
+        // split the block into 2:
+
+        // One that continues until the end of this root
+        result.push({ ...next, max: root.max });
+
+        // and another which starts just after this root
+        to_reopen.push({ ...next, min: root.max+1});
+      } else {
+        // then the next block ends before the current root, so treat it
+        // as if it were a new root
+        result.push(next);
+        _recurse(next, to_reopen);
+      }
+    }
+
+    // we've reached the end of this root, so append the to_reopen
+    // blocks to styling
+    styling = to_reopen.concat(styling);
+  }
+
+  while(styling.length){
+    let root = styling.shift();
+    result.push(root);
+    _recurse(root, []);
+  }
+
+  return result;
+}
+
 
 function StylizedText(props) {
   let { text, styling } = props;
 
   console.log("Rendering StylizedText");
 
+  let detangled = _detangle(styling);
+
+  console.dir(detangled);
+
+  /*
   // Sort into ascending order based on min field
   styling.sort((a,b) => { return a.min - b.min; });
 
-  let html = _generateHtml(text, styling);
+  let non_overlapping = [];
+
+  for(let sty of styling){
+
+  }
+
+  let elements = _generateElements(text, styling, []);
+  */
 
   return (
-    <div style={{ fontFamily: 'mono' }}
-         dangerouslySetInnerHTML={ { __html: html } }
-    >
-    </div>
+    <div>Hi</div>
   );
 }
 
