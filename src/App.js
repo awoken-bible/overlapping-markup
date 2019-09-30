@@ -1,5 +1,4 @@
 import React from 'react';
-import HtmlToReact from 'html-to-react';
 
 import { css, StyleSheet } from 'aphrodite';
 
@@ -62,7 +61,7 @@ function generateHtml(){
   let t_idx = 0;
   let unclosed_markup = [];
   let cnt = 0;
-  while(t_idx < text.length && cnt < 100){
+  while(t_idx < text.length && cnt < 30){
     ++cnt;
     console.log(`\n\nText idx: ${t_idx}`);
 
@@ -78,7 +77,7 @@ function generateHtml(){
     let first_to_close = null;
     for(let i = 0; i < unclosed_markup.length; ++i){
       console.dir(unclosed_markup[i]);
-      if(unclosed_markup[i].max < t_idx){
+      if(unclosed_markup[i].max <= t_idx){
         first_to_close = i;
         break;
       }
@@ -105,7 +104,7 @@ function generateHtml(){
     console.log("Still open: ");
     console.log(JSON.stringify(unclosed_markup, null, 2));
     for(let x of unclosed_markup){
-      if(x.max+1 < end){ end = x.max+1; }
+      if(x.max < end){ end = x.max; }
     }
     console.log("end to close markup: " + end);
 
