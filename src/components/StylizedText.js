@@ -38,7 +38,6 @@ function _generateElements(text, root){
 }
 
 function _buildHierachy(styling){
-  //debugger;
   if(styling.length <= 1){ return styling; }
 
   // Sort into ascending order based on min field
@@ -66,7 +65,8 @@ function _buildHierachy(styling){
         // split the block into 2:
 
         // One that continues until the end of this root
-        root.children.push({ ...next, max: root.max });
+        // (which we recurse into)
+        root.children.push(_recurse({ ...next, max: root.max, children: [] }, []));
 
         // and another which starts just after this root
         to_reopen.push({ ...next, min: root.max});
@@ -80,13 +80,17 @@ function _buildHierachy(styling){
     // we've reached the end of this root, so append the to_reopen
     // blocks to styling
     styling = to_reopen.concat(styling);
+    styling.sort((a,b) => {
+      if(a.min === b.min){
+        return b.max - a.max;
+      }
+      return a.min - b.min;
+    });
 
     return root;
   }
 
   while(styling.length){
-
-
     let root = { ...styling.shift(), children: [] };
     result.push(root);
     _recurse(root, []);

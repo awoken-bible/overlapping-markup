@@ -93,22 +93,22 @@ let styling = [
     max : 909,
     style: style_paragraph,
   },
-  //{ min : 896,
-  //  max : 925,
-  //  style: style_red,
-  //},
+  { min : 896,
+    max : 925,
+    style: style_red,
+  },
   { min : 909,
     max : 1546,
     style: style_paragraph,
   },
-  //{ min : 917,
-  //  max : 925,
-  //  style: style_bold,
-  //},
-  //{ min : 917,
-  //  max : 930,
-  //  style: style_under,
-  //},
+  { min : 917,
+    max : 925,
+    style: style_bold,
+  },
+  { min : 917,
+    max : 930,
+    style: style_under,
+  },
   { min : 1546,
     max : 2155,
     style: style_paragraph,
@@ -118,17 +118,14 @@ let styling = [
 function App(){
 
   /*
-  let text = '0123456789';
-  let styling = [
+  text = '0123456789';
+  styling = [
     { min: 1, max: 5, style: style_under },
     { min: 2, max: 5, style: style_red,  },
     { min: 3, max: 6, style: style_bold, },
   ];
-*/
-
-  /*
-  let text = 'ABCDEFGHIJKLMNOPQRSTUVWXYS';
-  let styling = [
+  text = 'ABCDEFGHIJKLMNOPQRSTUVWXYS';
+  styling = [
     { id: 1, min:  2, max:  7, style: style_red,  },
     { id: 2, min:  5, max:  9, style: style_under },
     { id: 3, min:  8, max: 13, style: style_bold },
