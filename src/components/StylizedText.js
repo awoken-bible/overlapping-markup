@@ -1,40 +1,59 @@
 import React from 'react';
 
 function _generateElements(text, root){
-
-  console.log("Generating element for");
-  console.dir(root);
-
-  // Base case - if this is leaf node, simply wrap the corresponding
-  // section of text in the appropriate style
+  let child_elms = [];
   if(root.children === undefined || root.children.length === 0){
-    console.log(`Is leaf --> ${root.min} - ${root.max} : ` + text.substring(root.min, root.max));
+    // Base case - if this is leaf node, simply wrap the corresponding
+    // section of text in the appropriate style
+    child_elms = text.substring(root.min, root.max);
+  } else {
+    // Otherwise recurse down the hierachy
+    let t_idx = root.min;
 
-    return React.createElement(root.style.content, {}, text.substring(root.min, root.max));
+    for(let c_idx = 0; c_idx < root.children.length; ++c_idx){
+      if(t_idx < root.children[c_idx].min){
+        // Then there is some extra unstyled text content before the start of the
+        // next child
+        child_elms.push(<>{text.substring(t_idx, root.children[c_idx].min)}</>);
+      }
+
+      child_elms.push(_generateElements(text, root.children[c_idx]));
+      t_idx = root.children[c_idx].max;
+    }
+
+    // Then there is some extra text content outside the styling of any children
+    // of root, append it to the end
+    if(t_idx < root.max){
+      child_elms.push(<>{text.substring(t_idx, root.max)}</>);
+    }
   }
+
+  let props = {
+    style_data: root.data,
+  };
 
   let elements = [];
 
-  let t_idx = root.min;
+  // :TODO: generate this in deterministic way
+  let key = Math.random();
 
-  for(let c_idx = 0; c_idx < root.children.length; ++c_idx){
-    if(t_idx < root.children[c_idx].min){
-      // Then there is some extra unstyled text content before the start of the
-      // next child
-      elements.push(<>{text.substring(t_idx, root.children[c_idx].min)}</>);
-    }
-
-    elements.push(_generateElements(text, root.children[c_idx]));
-    t_idx = root.children[c_idx].max;
+  console.dir(props);
+  if(root.style.before != null && !root.is_continuation){
+    elements.push(React.createElement(root.style.before,
+                                      { key: 'b', ...props },
+                                      []
+                                     ));
+  }
+  elements.push(React.createElement(root.style.content,
+                                    { key: 'c', ...props },
+                                    child_elms));
+  if(root.style.after != null && root.is_last){
+    elements.push(React.createElement(root.style.after,
+                                      { key: 'a', ...props },
+                                      []));
   }
 
-  // Then there is some extra text content outside the styling of any children
-  // of root, append it to the end
-  if(t_idx < root.max){
-    elements.push(<>{text.substring(t_idx, root.max)}</>);
-  }
-
-  return React.createElement(root.style.content, {}, elements);
+  return (<>{elements}</>);
 }
 
 function _buildHierachy(styling){
@@ -69,11 +88,11 @@ function _buildHierachy(styling){
         root.children.push(_recurse({ ...next, max: root.max, children: [] }, []));
 
         // and another which starts just after this root
-        to_reopen.push({ ...next, min: root.max});
+        to_reopen.push({ ...next, min: root.max, is_continuation: true });
       } else {
         // then the next block ends before the current root, so treat it
         // as if it were a new root
-        root.children.push(_recurse({ ...next, children: [] }, []));
+        root.children.push(_recurse({ ...next, children: [], is_last: true }, []));
       }
     }
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { css, StyleSheet } from 'aphrodite';
 
 import StylizedText from './components/StylizedText';
@@ -51,6 +51,18 @@ let style_bold = {
                           {props.children}
                         </span>
                        ),
+};
+
+let style_verse = {
+  before : (props) => {
+    return (<sup>{props.style_data.verse}</sup>);
+  },
+  content: (props) => {
+    return (<span>{props.children}</span>);
+  },
+  after : (props) => {
+    return (<sub>{props.style_data.verse}</sub>);
+  }
 };
 
 /*
@@ -112,6 +124,11 @@ let styling = [
   { min : 1546,
     max : 2155,
     style: style_paragraph,
+  },
+  { min: 0,
+    max: 22,
+    style: style_verse,
+    data : { verse: 1 },
   },
 ];
 
