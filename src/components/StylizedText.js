@@ -167,7 +167,7 @@ function StylizedText(props) {
     setComponentState(new_component_state);
   }, [styling]);
 
-  let hierachy = _buildHierachy(_styling);
+  let hierachy = useMemo(() => _buildHierachy(_styling), [styling]);
 
   let root = {
     min: 0,
