@@ -2,6 +2,14 @@ import React, { useState, useMemo } from 'react';
 
 function _generateElements(text, root, component_state, setComponentState){
   let child_elms = [];
+
+  function makeTextElm(min, max){
+    return (<React.Fragment key={"__text__" + min + "-" + max + "__"}>
+              { text.substring(min, max) }
+            </React.Fragment>
+           );
+  }
+
   if(root.children === undefined || root.children.length === 0){
     // Base case - if this is leaf node, simply wrap the corresponding
     // section of text in the appropriate style
@@ -14,7 +22,7 @@ function _generateElements(text, root, component_state, setComponentState){
       if(t_idx < root.children[c_idx].min){
         // Then there is some extra unstyled text content before the start of the
         // next child
-        child_elms.push(<>{text.substring(t_idx, root.children[c_idx].min)}</>);
+        child_elms.push(makeTextElm(t_idx, root.children[c_idx].min));
       }
 
       child_elms.push(_generateElements(text, root.children[c_idx], component_state, setComponentState));
@@ -24,7 +32,7 @@ function _generateElements(text, root, component_state, setComponentState){
     // Then there is some extra text content outside the styling of any children
     // of root, append it to the end
     if(t_idx < root.max){
-      child_elms.push(<>{text.substring(t_idx, root.max)}</>);
+      child_elms.push(makeTextElm(t_idx, root.max));
     }
   }
 
@@ -45,25 +53,24 @@ function _generateElements(text, root, component_state, setComponentState){
 
   let elements = [];
 
-  // :TODO: generate this in deterministic way
-  let key = Math.random();
+  let key = `__${root.min}-${root.max}`;
 
   if(root.style.before != null && !root.is_continuation){
     elements.push(React.createElement(root.style.before,
-                                      { key: 'b', ...props },
+                                      { key: `${key}-b`, ...props },
                                       []
                                      ));
   }
   elements.push(React.createElement(root.style.content,
-                                    { key: 'c', ...props },
+                                    { key: `${key}-c`, ...props },
                                     child_elms));
   if(root.style.after != null && root.is_last){
     elements.push(React.createElement(root.style.after,
-                                      { key: 'a', ...props },
+                                      { key: `${key}-a`, ...props },
                                       []));
   }
 
-  return (<>{elements}</>);
+  return elements;
 }
 
 function _buildHierachy(styling){
@@ -132,17 +139,15 @@ function _buildHierachy(styling){
 function StylizedText(props) {
   let { text, styling } = props;
 
+  // Our internal functions consume the styling array
+  // as we process it, but we don't want to consume
+  // the actual array being used as a prop, or on subsequent
+  // re-renders there will be no styling - so copy it now
   let _styling = [...styling];
 
   let [ component_state, setComponentState ] = useState({});
 
-  console.log("Rendering StylizedText, style blocks:");
-  console.log(JSON.stringify(_styling, null, 2));
-  console.log("...done print...");
-
-
   useMemo(() => {
-    console.log("Initalizing component state");
     let new_component_state = {};
     Object.assign(new_component_state, component_state);
 
@@ -152,19 +157,14 @@ function StylizedText(props) {
         continue;
       }
 
-      console.dir(block);
       if(block.style.initial_state){
-        console.log("Cloning initial state");
         new_component_state[block.id] = { ...block.style.initial_state };
       } else {
-        console.log("Empty initial state");
         new_component_state[block.id] = {};
       }
     }
 
     setComponentState(new_component_state);
-    console.log("New component state is: ");
-    console.dir(new_component_state);
   }, [styling]);
 
   let hierachy = _buildHierachy(_styling);
