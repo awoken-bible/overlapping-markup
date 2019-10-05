@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 
-function _generateElements(text, root){
+function _generateElements(text, root, component_state, setComponentState){
   let child_elms = [];
   if(root.children === undefined || root.children.length === 0){
     // Base case - if this is leaf node, simply wrap the corresponding
@@ -17,7 +17,7 @@ function _generateElements(text, root){
         child_elms.push(<>{text.substring(t_idx, root.children[c_idx].min)}</>);
       }
 
-      child_elms.push(_generateElements(text, root.children[c_idx]));
+      child_elms.push(_generateElements(text, root.children[c_idx], component_state, setComponentState));
       t_idx = root.children[c_idx].max;
     }
 
@@ -29,15 +29,25 @@ function _generateElements(text, root){
   }
 
   let props = {
-    style_data: root.data,
+    style_data : root.data,
   };
+  if(root.id){
+    props.state    = component_state[root.id];
+    props.setState = (val) => {
+      console.log("Setting state!");
+      console.dir(val);
+      let new_state = {};
+      Object.assign(new_state, component_state);
+      new_state[root.id] = val;
+      setComponentState(new_state);
+    };
+  }
 
   let elements = [];
 
   // :TODO: generate this in deterministic way
   let key = Math.random();
 
-  console.dir(props);
   if(root.style.before != null && !root.is_continuation){
     elements.push(React.createElement(root.style.before,
                                       { key: 'b', ...props },
@@ -122,12 +132,42 @@ function _buildHierachy(styling){
 function StylizedText(props) {
   let { text, styling } = props;
 
-  console.log("Rendering StylizedText");
+  let _styling = [...styling];
 
-  let hierachy = _buildHierachy(styling);
+  let [ component_state, setComponentState ] = useState({});
 
-  console.dir(hierachy);
+  console.log("Rendering StylizedText, style blocks:");
+  console.log(JSON.stringify(_styling, null, 2));
+  console.log("...done print...");
 
+
+  useMemo(() => {
+    console.log("Initalizing component state");
+    let new_component_state = {};
+    Object.assign(new_component_state, component_state);
+
+    for(let block of _styling){
+      if(block.id === undefined ||
+         component_state[block.id] !== undefined){
+        continue;
+      }
+
+      console.dir(block);
+      if(block.style.initial_state){
+        console.log("Cloning initial state");
+        new_component_state[block.id] = { ...block.style.initial_state };
+      } else {
+        console.log("Empty initial state");
+        new_component_state[block.id] = {};
+      }
+    }
+
+    setComponentState(new_component_state);
+    console.log("New component state is: ");
+    console.dir(new_component_state);
+  }, [styling]);
+
+  let hierachy = _buildHierachy(_styling);
 
   let root = {
     min: 0,
@@ -136,7 +176,7 @@ function StylizedText(props) {
     children: hierachy,
   };
 
-  let elements = _generateElements(text, root);
+  let elements = _generateElements(text, root, component_state, setComponentState);
 
   return (
     <div style={{ fontFamily: 'mono' }}>{ elements }</div>
