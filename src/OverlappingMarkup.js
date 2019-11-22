@@ -136,7 +136,7 @@ function _buildHierachy(styling){
 }
 
 
-function StylizedText(props) {
+export default function OverlappingMarkup(props) {
   let { text, styling } = props;
 
   // Our internal functions consume the styling array
@@ -182,5 +182,3 @@ function StylizedText(props) {
     <div style={{ fontFamily: 'mono' }}>{ elements }</div>
   );
 }
-
-export default StylizedText;

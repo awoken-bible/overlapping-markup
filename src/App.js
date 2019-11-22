@@ -1,7 +1,7 @@
 import React from 'react';
 import { css, StyleSheet } from 'aphrodite';
 
-import StylizedText from './components/StylizedText';
+import OverlappingMarkup from './OverlappingMarkup';
 
 
 const styles = StyleSheet.create({
@@ -178,7 +178,7 @@ function App(){
   ];
   */
 
-  return (<StylizedText text={text} styling={styling}></StylizedText>);
+  return (<OverlappingMarkup text={text} styling={styling}/>);
 }
 
 export default App;
