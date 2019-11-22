@@ -23,8 +23,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "webpack",
-		"clean": "rm -rf ./dist",
-		"prepack": "npm run build"
+    "clean": "rm -rf ./dist",
+    "prepack": "npm install && npm run build"
   },
   "eslintConfig": {
     "extends": "react-app"
