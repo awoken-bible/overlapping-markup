@@ -1,0 +1,23 @@
+* Overview
+
+	Provides a react component capable of automatically generating the markup required to representing a arbitrary number of overlapping hierarchies of tags.
+
+	Thinking in terms of HTML, this module converts non-hierarchical tag soup such as:
+
+	#+BEGIN_SRC HTML
+  <b>Hello<i>World</b>Goodble</i>
+	#+END_SRC
+
+	Into the valid tag set:
+
+	#+BEGIN_SRC HTML
+	<b>Hello<i>World</i></b><i>Goodbye</i>
+	#+END_SRC
+
+	However, rather than dealing with raw HTML, we instead deal with react components, and take as input:
+	- A block of text that should be styled
+	- A list of styling elements, which consist of a function to create the react component, and an int range representing the start and end index of the text where the styling should be applied
+
+* Project Structure
+
+	This repo is a hybrid of a react-app and a webpack project, with the react app being a demo application that can be launched by running ~npm run start~, and the webpack project creating a single =dist/OverlappingMarkup.js= file which is actually distributed in the published NPM package, and can be included by other react projects.

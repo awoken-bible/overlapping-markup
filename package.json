@@ -3,27 +3,32 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
-    "react": "^16.10.1",
+    "babel-core": "^6.21.0",
+    "babel-loader": "^8.0.6",
+    "@babel/preset-env": "^7.7.1",
+    "@babel/preset-react": "^7.7.0",
+    "path": "^0.12.7",
+    "prop-types": "^15.6.0",
+    "react": "^16.0.0",
     "react-dom": "^16.10.1",
-    "react-scripts": "3.1.2"
+    "react-scripts": "3.1.2",
+    "webpack": "^4.5.0",
+    "webpack-cli": "^3.2.1"
   },
-  "main": "src/OverlappingMarkup.js",
+  "main": "dist/OverlappingMarkup.js",
   "peerDependencies": {
     "react": "^16.10.1",
     "react-dom": "^16.10.1"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "build": "webpack",
+		"clean": "rm -rf ./dist"
   },
   "eslintConfig": {
     "extends": "react-app"
   },
-  "files": [
-    "src/OverlappingMarkup.js"
-  ],
+  "files": [],
   "browserslist": {
     "production": [
       ">0.2%",
