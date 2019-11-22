@@ -2,10 +2,15 @@
   "name": "overlapping-markup",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {
+  "devDependencies": {
     "react": "^16.10.1",
     "react-dom": "^16.10.1",
     "react-scripts": "3.1.2"
+  },
+  "main": "src/OverlappingMarkup.js",
+  "peerDependencies": {
+    "react": "^16.10.1",
+    "react-dom": "^16.10.1"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -16,6 +21,9 @@
   "eslintConfig": {
     "extends": "react-app"
   },
+  "files": [
+    "src/OverlappingMarkup.js"
+  ],
   "browserslist": {
     "production": [
       ">0.2%",
