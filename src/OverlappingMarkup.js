@@ -73,16 +73,15 @@ function _generateElements(text, root, component_state, setComponentState){
   return elements;
 }
 
-function _buildHierachy(styling){
+function _buildHierachy(styling, sort_tie_breaker){
   if(styling.length <= 1){ return styling; }
 
   // Sort into ascending order based on min field
-  // If there are ties, put the longest element first
-  // (since this will be a parent which fully contains
-  // the subsequent blocks with same min)
+  // If there are ties, defer to the sort tie breaker - which by default put the longest element
+  // first (since this will be a parent which fully contains the subsequent blocks with same min)
   styling.sort((a,b) => {
     if(a.min === b.min){
-      return b.max - a.max;
+      return sort_tie_breaker(a, b);
     }
     return a.min - b.min;
   });
@@ -118,7 +117,7 @@ function _buildHierachy(styling){
     styling = to_reopen.concat(styling);
     styling.sort((a,b) => {
       if(a.min === b.min){
-        return b.max - a.max;
+        return sort_tie_breaker(a, b);
       }
       return a.min - b.min;
     });
@@ -155,8 +154,24 @@ function _generateDefaultComponentState(styling, component_state = {}){
   return new_component_state;
 }
 
+/**
+ * Renders a block of plain text styled by a set of potentially overlapping blocks
+ *
+ * text    - The plain string to be rendered
+ * styling - Set of style blocks with min and max representing extent of text which is styled
+ * sort_tie_breaker - Function called to break ties when sorting the styling elements into order
+ *    This can be used to control whether styling renders as: `<a><b> text content </b></a>` or
+ *    `<b><a> text content </a></b>`
+ *    For this component to function, we must ALWAYS sort a styling block with a lower min before an
+ *    element with a higher min - but when the min of two blocks is equal we by default sort the
+ *    blocks so the LONGER is first, therefore rendering: <a><b> text </b> content </a>
+ *    If this is undesired, a different tie breaking algorithm can be used, which could be example
+ *    produce: <b><a> text </a></b><a> content </a>
+ *    This is useful when there are requirements for a particular type of styling block to always
+ *    appear inside some other - even if that means we need to generate more tags to achieve it
+ */
 export default function OverlappingMarkup(props) {
-  let { text, styling } = props;
+  let { text, styling, sort_tie_breaker } = props;
 
   let [ component_state, setComponentState ] = React.useState(_generateDefaultComponentState(styling));
 
@@ -166,8 +181,8 @@ export default function OverlappingMarkup(props) {
     // Our internal functions consume the styling array as we process it, but we don't want to
     // consume the actual array being used as a prop, or on subsequent re-renders there will be
     // no styling - so we pass a copy into _buildHierachy
-    return _buildHierachy([...styling]);
-  }, [ styling ]);
+    return _buildHierachy([...styling], sort_tie_breaker || ((a,b) => b.max - a.max));
+  }, [ styling, sort_tie_breaker ]);
 
   let root = {
     min: 0,
