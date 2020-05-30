@@ -1,25 +1,31 @@
 # Overview
 
-Provides a react component capable of automatically generating the markup required to render text with arbitrary styling applied to ranges of the text.
+This package Provides a React component capable of automatically generating the markup required to render text with arbitrary styling applied to potentially overlapping ranges.
 
-Thinking in terms of HTML, this module converts (a JSON representation of) non-hierarchical tag soup such as:
+Conceptually, this package transforms (a JSON representation of) non-hierarchical tag soup such as:
 
 ```html
 <b>Hello <i>World</b> Goodble</i>
-````
+```
 
-Into the valid tag set:
+Into the following valid tag set:
 
 ```html
 <b>Hello <i>World</i></b> <i>Goodbye</i>
 ```
 
-However, rather than dealing with raw HTML, we instead deal with React components, and take as input:
+Although each element is in fact a React component.
+
+Further information about the problem domain of "Overlapping (aka Concurrent) Markup" can be found [on wikipedia](https://en.wikipedia.org/wiki/Overlapping_markup).
+
+# Basic Usage
+
+The `<OverlappingMarkup>` component requires at minimum:
 
 - A string representing the text that should be styled
 - A list of styling blocks, which specify both the start and end index of the text to be wrapped, and references to React components used to wrap the text content
 
-The above example would be achieved with the following usage:
+The above example HTML could be rendered with the following code:
 
 ```javascript
 
