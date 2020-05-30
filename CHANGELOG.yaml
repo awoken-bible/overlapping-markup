@@ -1,0 +1,6 @@
+- v0.2.0:
+  date: '2020-05-16'
+  name: 'Initial Public Release'
+  features:
+    - Styling text with (potentially overlapping) react components
+    - Equivalent of `useState` for components even when they are split on the boundary of some other hierachy
