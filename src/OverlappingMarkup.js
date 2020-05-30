@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React from 'react';
 
 function _generateElements(text, root, component_state, setComponentState){
   let child_elms = [];
@@ -135,39 +135,39 @@ function _buildHierachy(styling){
   return result;
 }
 
+function _generateDefaultComponentState(styling, component_state = {}){
+  let new_component_state = {};
+  Object.assign(new_component_state, component_state);
+
+  for(let block of styling){
+    if(block.id === undefined ||
+       component_state[block.id] !== undefined){
+      continue;
+    }
+
+    if(block.style.initial_state){
+      new_component_state[block.id] = { ...block.style.initial_state };
+    } else {
+      new_component_state[block.id] = {};
+    }
+  }
+
+  return new_component_state;
+}
 
 export default function OverlappingMarkup(props) {
   let { text, styling } = props;
 
-  // Our internal functions consume the styling array
-  // as we process it, but we don't want to consume
-  // the actual array being used as a prop, or on subsequent
-  // re-renders there will be no styling - so copy it now
-  let _styling = [...styling];
+  let [ component_state, setComponentState ] = React.useState(_generateDefaultComponentState(styling));
 
-  let [ component_state, setComponentState ] = useState({});
+  let hierachy = React.useMemo(() => {
+    setComponentState(x => _generateDefaultComponentState(styling, x));
 
-  useMemo(() => {
-    let new_component_state = {};
-    Object.assign(new_component_state, component_state);
-
-    for(let block of _styling){
-      if(block.id === undefined ||
-         component_state[block.id] !== undefined){
-        continue;
-      }
-
-      if(block.style.initial_state){
-        new_component_state[block.id] = { ...block.style.initial_state };
-      } else {
-        new_component_state[block.id] = {};
-      }
-    }
-
-    setComponentState(new_component_state);
-  }, [styling]);
-
-  let hierachy = _buildHierachy(_styling);
+    // Our internal functions consume the styling array as we process it, but we don't want to
+    // consume the actual array being used as a prop, or on subsequent re-renders there will be
+    // no styling - so we pass a copy into _buildHierachy
+    return _buildHierachy([...styling]);
+  }, [ styling ]);
 
   let root = {
     min: 0,
