@@ -1,5 +1,12 @@
 {
   "name": "overlapping-markup",
+  "description": "React component which renders text with arbitrary styling applied to potentially overlapping ranges",
+  "homepage": "https://github.com/awoken-bible/overlapping-markup#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/awoken-bible/overlapping-markup.git"
+  },
+  "licence": "MIT",
   "version": "0.2.0",
   "devDependencies": {
     "aphrodite": "^2.4.0",
