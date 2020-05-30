@@ -1,5 +1,12 @@
+- v0.2.1:
+  date: '2020-05-30'
+  name: 'Package Meta Data Fixes'
+  fixes:
+    - Add homepage, git repo and licence to package.json
+    - Add MIT LICENCE file
+
 - v0.2.0:
-  date: '2020-05-16'
+  date: '2020-05-30'
   name: 'Initial Public Release'
   features:
     - Styling text with (potentially overlapping) react components
