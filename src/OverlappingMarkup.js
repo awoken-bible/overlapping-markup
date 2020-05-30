@@ -178,8 +178,10 @@ export default function OverlappingMarkup(props) {
 
   let elements = _generateElements(text, root, component_state, setComponentState);
 
+  // Return the element set and wrap in container which has the className, styling and onEvent
+  // handlers specified by props
   return (
-    <div className={props.className} style={props.style}>
+    <div {...props}>
       { elements }
     </div>
   );
