@@ -1,3 +1,10 @@
+- v0.2.2:
+  date: '2020-05-31'
+  name: 'Superfluous Prop Fix'
+  fixes:
+    - Prevent text and styling data from being rendered to DOM as HTML attributes on root div element
+    - Fix console warnings caused by trying to attack a function to root div element as attribute
+
 - v0.2.1:
   date: '2020-05-30'
   name: 'Package Meta Data Fixes'
