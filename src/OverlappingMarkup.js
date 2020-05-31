@@ -195,8 +195,15 @@ export default function OverlappingMarkup(props) {
 
   // Return the element set and wrap in container which has the className, styling and onEvent
   // handlers specified by props
+  // We can't just pass props directly since it would cause extra props such as text, styling and
+  // sort_tie_breaker to be rendered to the DOM (which in the case of sort_tie_breaker, emits
+  // warnings as we can't very well render a function into the DOM as a HTML attribute)
+  let div_props = { className: props.className, style: props.style };
+  for(let k of Object.keys(props)){
+    if(k.startsWith('on')){ div_props[k] = props[k]; }
+  }
   return (
-    <div {...props}>
+    <div {...div_props}>
       { elements }
     </div>
   );
