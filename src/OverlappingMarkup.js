@@ -179,10 +179,10 @@ export default function OverlappingMarkup({
 	 * appear inside some other (eg, inline elements inside block elements), even if this means we
 	 * need to generate more tags to achieve this result
 	 */
-	sort_tie_breaker,
+	sortTieBreaker = defaultTieBreaker,
 }) {
 
-	let [ component_state, setComponentState ] = React.useState(_generateDefaultComponentState(styling));
+	let [ componentState, setComponentState ] = React.useState({});
 
 	let hierachy = React.useMemo(() => {
 		setComponentState(x => _generateDefaultComponentState(styling, x));
@@ -190,8 +190,8 @@ export default function OverlappingMarkup({
 		// Our internal functions consume the styling array as we process it, but we don't want to
 		// consume the actual array being used as a prop, or on subsequent re-renders there will be
 		// no styling - so we pass a copy into _buildHierachy
-		return _buildHierachy([...styling], sort_tie_breaker || ((a,b) => b.max - a.max));
-	}, [ styling, sort_tie_breaker ]);
+		return _buildHierachy([...styling], sortTieBreaker);
+	}, [ styling, sortTieBreaker ]);
 
 	const elements = React.useMemo(() => {
 		let root = {
@@ -201,8 +201,19 @@ export default function OverlappingMarkup({
 			children: hierachy,
 		};
 
-		return _generateElements(text, root, component_state, setComponentState);
-	}, [ text, component_state, hierachy, setComponentState ]);
+		return _generateElements(text, root, componentState, setComponentState);
+	}, [ text, componentState, hierachy, setComponentState ]);
 
 	return <>{ elements }</>;
 }
+
+/**
+ * Default sort order tie breaker which puts nests shorter styling blocks inside longer blocks
+ */
+function defaultTieBreaker(a,b) {
+	return (a,b) => b.max - a.max;
+}
+
+
+// attach to component, so user's of lib can fallback to default implementation within their own
+OverlappingMarkup.defaultTieBreaker = defaultTieBreaker;
