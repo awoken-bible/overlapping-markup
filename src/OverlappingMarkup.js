@@ -154,57 +154,55 @@ function _generateDefaultComponentState(styling, component_state = {}){
   return new_component_state;
 }
 
-/**
- * Renders a block of plain text styled by a set of potentially overlapping blocks
- *
- * text    - The plain string to be rendered
- * styling - Set of style blocks with min and max representing extent of text which is styled
- * sort_tie_breaker - Function called to break ties when sorting the styling elements into order
- *    This can be used to control whether styling renders as: `<a><b> text content </b></a>` or
- *    `<b><a> text content </a></b>`
- *    For this component to function, we must ALWAYS sort a styling block with a lower min before an
- *    element with a higher min - but when the min of two blocks is equal we by default sort the
- *    blocks so the LONGER is first, therefore rendering: <a><b> text </b> content </a>
- *    If this is undesired, a different tie breaking algorithm can be used, which could be example
- *    produce: <b><a> text </a></b><a> content </a>
- *    This is useful when there are requirements for a particular type of styling block to always
- *    appear inside some other - even if that means we need to generate more tags to achieve it
- */
-export default function OverlappingMarkup(props) {
-  let { text, styling, sort_tie_breaker } = props;
+export default function OverlappingMarkup({
+	/** The plain string to be rendered */
+	text,
 
-  let [ component_state, setComponentState ] = React.useState(_generateDefaultComponentState(styling));
+	/** Set of style blocks with min and max representing extent of text which is styled */
+	styling,
 
-  let hierachy = React.useMemo(() => {
-    setComponentState(x => _generateDefaultComponentState(styling, x));
+	/**
+	 * Function called to break ties when sorting the styling elements into order
+	 *
+	 * This can be used to control the nesting order of overlapping styling, IE:
+	 * - `<a><b> text content </b></a>`
+	 * - `<b><a> text content </a></b>`
+	 *
+	 * Note that this function automatically sorts elements with a lower min before a higher min.
+	 * This function is only called when two styling blocks have an equal min. By default we sort the
+	 * blocks so the LONGER is first, therefore rendering: `<a><b> text </b> content </a>`
+	 *
+	 * If this is undesired, a different tie breaking algorithm can be used, which could be example
+	 * produce: <b><a> text </a></b><a> content </a>
+	 *
+	 * This is useful when there are requirements for a particular type of styling block to always
+	 * appear inside some other (eg, inline elements inside block elements), even if this means we
+	 * need to generate more tags to achieve this result
+	 */
+	sort_tie_breaker,
+}) {
 
-    // Our internal functions consume the styling array as we process it, but we don't want to
-    // consume the actual array being used as a prop, or on subsequent re-renders there will be
-    // no styling - so we pass a copy into _buildHierachy
-    return _buildHierachy([...styling], sort_tie_breaker || ((a,b) => b.max - a.max));
-  }, [ styling, sort_tie_breaker ]);
+	let [ component_state, setComponentState ] = React.useState(_generateDefaultComponentState(styling));
 
-  let root = {
-    min: 0,
-    max: text.length,
-    style: { content: (props) => (<>{props.children}</>) },
-    children: hierachy,
-  };
+	let hierachy = React.useMemo(() => {
+		setComponentState(x => _generateDefaultComponentState(styling, x));
 
-  let elements = _generateElements(text, root, component_state, setComponentState);
+		// Our internal functions consume the styling array as we process it, but we don't want to
+		// consume the actual array being used as a prop, or on subsequent re-renders there will be
+		// no styling - so we pass a copy into _buildHierachy
+		return _buildHierachy([...styling], sort_tie_breaker || ((a,b) => b.max - a.max));
+	}, [ styling, sort_tie_breaker ]);
 
-  // Return the element set and wrap in container which has the className, styling and onEvent
-  // handlers specified by props
-  // We can't just pass props directly since it would cause extra props such as text, styling and
-  // sort_tie_breaker to be rendered to the DOM (which in the case of sort_tie_breaker, emits
-  // warnings as we can't very well render a function into the DOM as a HTML attribute)
-  let div_props = { className: props.className, style: props.style };
-  for(let k of Object.keys(props)){
-    if(k.startsWith('on')){ div_props[k] = props[k]; }
-  }
-  return (
-    <div {...div_props}>
-      { elements }
-    </div>
-  );
+	const elements = React.useMemo(() => {
+		let root = {
+			min: 0,
+			max: text.length,
+			style: { content: (props) => (<>{props.children}</>) },
+			children: hierachy,
+		};
+
+		return _generateElements(text, root, component_state, setComponentState);
+	}, [ text, component_state, hierachy, setComponentState ]);
+
+	return <>{ elements }</>;
 }
