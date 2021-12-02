@@ -139,6 +139,10 @@ let styling = [
   },
 ];
 
+function TextWrapper({ min, max, text, children }) {
+	return <span className='text'>{ children }</span>;
+}
+
 function App(){
 
   /*
@@ -155,11 +159,11 @@ function App(){
     { id: 3, min:  8, max: 13, style: styleBold },
     { id: 4, min: 12, max: 20, style: styleRed },
     { id: 5, min: 14, max: 15, style: styleUnder },
-    { id: 6, min: 17, max: 18,  style: style_under },
+    { id: 6, min: 17, max: 18,  style: styleUnder },
   ];
   */
 
-  return (<OverlappingMarkup text={text} styling={styling}/>);
+  return (<OverlappingMarkup text={text} styling={styling} TextWrapper={TextWrapper}/>);
 }
 
 export default App;
