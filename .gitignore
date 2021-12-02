@@ -28,3 +28,4 @@ yarn-error.log*
 
 # Node generated
 **/node_modules/
+overlapping-markup-*.tgz
