@@ -107,7 +107,7 @@ function _buildHierachy(styling, sortTieBreaker){
         root.children.push(_recurse({ ...next, max: root.max, children: [] }, []));
 
         // and another which starts just after this root
-        toReopen.push({ ...next, min: root.max, isCcontinuation: true });
+        toReopen.push({ ...next, min: root.max, isContinuation: true });
       } else {
         // then the next block ends before the current root, so treat it
         // as if it were a new root
