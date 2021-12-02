@@ -7,7 +7,7 @@ This package Provides a React component capable of automatically generating the 
 Conceptually, this package transforms (a JSON representation of) non-hierarchical tag soup such as:
 
 ```html
-<b>Hello <i>World</b> Goodble</i>
+<b>Hello <i>World</b> Goodbye</i>
 ```
 
 Into the following valid tag set:
@@ -55,7 +55,7 @@ function App(){
 }
 ```
 
-# A Note on Project Structure
+# Project Structure
 
 This repo is a hybrid of a react-app and a webpack project:
 - The react app is a demo application that can be launched by running ~npm run start~
