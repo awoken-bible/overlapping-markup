@@ -1,53 +1,52 @@
 import React from 'react';
 
-function _generateElements(text, root, component_state, setComponentState){
-  let child_elms = [];
+function _generateElements(text, root, componentState, setComponentState){
+	let childElms = [];
 
-  function makeTextElm(min, max){
-    return (<React.Fragment key={"__text__" + min + "-" + max + "__"}>
-              { text.substring(min, max) }
-            </React.Fragment>
-           );
-  }
+	function makeTextElm(min, max){
+		return (
+			<React.Fragment key={"__text__" + min + "-" + max + "__"}>
+				{ text.substring(min, max) }
+			</React.Fragment>
+		);
+	}
 
-  if(root.children === undefined || root.children.length === 0){
-    // Base case - if this is leaf node, simply wrap the corresponding
-    // section of text in the appropriate style
-    child_elms = text.substring(root.min, root.max);
-  } else {
-    // Otherwise recurse down the hierachy
-    let t_idx = root.min;
+	if(root.children === undefined || root.children.length === 0){
+		// Base case - if this is leaf node, simply wrap the corresponding
+		// section of text in the appropriate style
+		childElms = text.substring(root.min, root.max);
+	} else {
+		// Otherwise recurse down the hierachy
+		let textIdx = root.min;
 
-    for(let c_idx = 0; c_idx < root.children.length; ++c_idx){
-      if(t_idx < root.children[c_idx].min){
-        // Then there is some extra unstyled text content before the start of the
-        // next child
-        child_elms.push(makeTextElm(t_idx, root.children[c_idx].min));
-      }
+		for(let child of root.children){
+			if(textIdx < child.min){
+				// Then there is some extra unstyled text content before the start of the next child
+				childElms.push(makeTextElm(textIdx, child.min));
+			}
 
-      child_elms.push(_generateElements(text, root.children[c_idx], component_state, setComponentState));
-      t_idx = root.children[c_idx].max;
-    }
+			childElms.push(_generateElements(text, child, componentState, setComponentState));
+			textIdx = child.max;
+		}
 
-    // Then there is some extra text content outside the styling of any children
-    // of root, append it to the end
-    if(t_idx < root.max){
-      child_elms.push(makeTextElm(t_idx, root.max));
-    }
-  }
+		// Then there is some extra text content outside the styling of any children
+		// of root, append it to the end
+		if(textIdx < root.max){
+			childElms.push(makeTextElm(textIdx, root.max));
+		}
+	}
 
-  let props = {
-    style_data : root.data,
-  };
-  if(root.id){
-    props.state    = component_state[root.id];
-    props.setState = (val) => {
-      console.log("Setting state!");
-      console.dir(val);
-      let new_state = {};
-      Object.assign(new_state, component_state);
-      new_state[root.id] = val;
-      setComponentState(new_state);
+	///////////////
+	// Generate props to attach to the generated element
+	let props = { styleData : root.data };
+	if(root.id){
+		props.state		 = componentState[root.id];
+		props.setState = (arg) => {
+			setComponentState((old) => {
+				let result = { ...old };
+				result[root.id] = typeof arg === 'function' ? arg(old[root.id]) : arg;
+				return result;
+			});
     };
   }
 
@@ -55,40 +54,40 @@ function _generateElements(text, root, component_state, setComponentState){
 
   let key = `__${root.min}-${root.max}`;
 
-  if(root.style.before != null && !root.is_continuation){
-    elements.push(React.createElement(root.style.before,
-                                      { key: `${key}-b`, ...props },
-                                      []
-                                     ));
+  if(root.style.before && !root.isContinuation){
+    elements.push(React.createElement(
+			root.style.before, { key: `${key}-b`, ...props }, []
+		));
   }
-  elements.push(React.createElement(root.style.content,
-                                    { key: `${key}-c`, ...props },
-                                    child_elms));
-  if(root.style.after != null && root.is_last){
-    elements.push(React.createElement(root.style.after,
-                                      { key: `${key}-a`, ...props },
-                                      []));
+  elements.push(React.createElement(
+		root.style.content, { key: `${key}-c`, ...props }, childElms
+	));
+  if(root.style.after && root.isLlast){
+    elements.push(React.createElement(
+			root.style.after, { key: `${key}-a`, ...props }, []
+		));
   }
 
   return elements;
 }
 
-function _buildHierachy(styling, sort_tie_breaker){
+/**
+ * Helper function which converts from a list of styling blocks, to an internal
+ * hierhachical object representation
+ */
+function _buildHierachy(styling, sortTieBreaker){
   if(styling.length <= 1){ return styling; }
 
   // Sort into ascending order based on min field
   // If there are ties, defer to the sort tie breaker - which by default put the longest element
   // first (since this will be a parent which fully contains the subsequent blocks with same min)
-  styling.sort((a,b) => {
-    if(a.min === b.min){
-      return sort_tie_breaker(a, b);
-    }
-    return a.min - b.min;
-  });
+	const _sorter = (a,b) => a.min - b.min || sortTieBreaker(a, b);
+  styling.sort(_sorter);
+
 
   let result = [];
 
-  function _recurse(root, to_reopen){
+  function _recurse(root, toReopen){
     // Consume blocks While the next one is at least partially contained
     // within this root (as opposed to being the subsequent sibling to
     // this root)
@@ -104,23 +103,17 @@ function _buildHierachy(styling, sort_tie_breaker){
         root.children.push(_recurse({ ...next, max: root.max, children: [] }, []));
 
         // and another which starts just after this root
-        to_reopen.push({ ...next, min: root.max, is_continuation: true });
+        toReopen.push({ ...next, min: root.max, isCcontinuation: true });
       } else {
         // then the next block ends before the current root, so treat it
         // as if it were a new root
-        root.children.push(_recurse({ ...next, children: [], is_last: true }, []));
+        root.children.push(_recurse({ ...next, children: [], isLast: true }, []));
       }
     }
 
-    // we've reached the end of this root, so append the to_reopen
-    // blocks to styling
-    styling = to_reopen.concat(styling);
-    styling.sort((a,b) => {
-      if(a.min === b.min){
-        return sort_tie_breaker(a, b);
-      }
-      return a.min - b.min;
-    });
+    // we've reached the end of this root, so append the toReopen blocks to styling
+    styling = toReopen.concat(styling);
+    styling.sort(_sorter);
 
     return root;
   }
@@ -134,24 +127,17 @@ function _buildHierachy(styling, sort_tie_breaker){
   return result;
 }
 
-function _generateDefaultComponentState(styling, component_state = {}){
-  let new_component_state = {};
-  Object.assign(new_component_state, component_state);
+function _generateDefaultComponentState(styling, oldState = {}){
+  let result = { ...oldState };
 
   for(let block of styling){
-    if(block.id === undefined ||
-       component_state[block.id] !== undefined){
+    if(block.id === undefined || result[block.id] !== undefined){
       continue;
     }
-
-    if(block.style.initial_state){
-      new_component_state[block.id] = { ...block.style.initial_state };
-    } else {
-      new_component_state[block.id] = {};
-    }
+		result[block.id] = block.style.initialState === undefined ? {} : { ...block.style.initialState };
   }
 
-  return new_component_state;
+  return result;
 }
 
 export default function OverlappingMarkup({
@@ -211,7 +197,7 @@ export default function OverlappingMarkup({
  * Default sort order tie breaker which puts nests shorter styling blocks inside longer blocks
  */
 function defaultTieBreaker(a,b) {
-	return (a,b) => b.max - a.max;
+	return b.max - a.max;
 }
 
 

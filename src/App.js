@@ -5,90 +5,71 @@ import OverlappingMarkup from './OverlappingMarkup';
 
 
 const styles = StyleSheet.create({
-  red: {
-    color: 'red',
-  },
-  under: {
-    textDecoration: 'underline',
-  },
-  bold: {
-    //fontWeight: 900,
-    textDecoration: 'line-through',
-  },
-  paragraph: {
-    display: 'block',
-  },
+	red: {
+		color: 'red',
+	},
+	under: {
+		textDecoration: 'underline',
+	},
+	bold: {
+		//fontWeight: 900,
+		textDecoration: 'line-through',
+	},
+	paragraph: {
+		display: 'block',
+	},
 
-  footnote_caller : {
-    display: 'inline-block',
-    background: 'red',
-    width: '1em',
-    height: '1em',
-  },
+	footnoteCaller : {
+		display: 'inline-block',
+		background: 'red',
+		width: '1em',
+		height: '1em',
+	},
 });
 
 
-let style_paragraph = {
-  content : (props) => (<p>{props.children}</p>),
+let styleParagraph = {
+	content: (props) => (<p>{props.children}</p>),
 };
 
-let style_red = {
-  content : (props) => (<span className={css(styles.red)}>
-                          {props.children}
-                        </span>
-                       ),
+let styleRed = {
+	content: (props) => (<span className={css(styles.red)}>{props.children}</span>),
 };
 
-let style_under = {
-  content : (props) => (<span className={css(styles.under)}>
-                          {props.children}
-                        </span>
-                       ),
+let styleUnder = {
+	content: (props) => (<span className={css(styles.under)}>{props.children}</span>),
 };
 
-let style_bold = {
-  content : (props) => (<span className={css(styles.bold)}>
-                          {props.children}
-                        </span>
-                       ),
+let styleBold = {
+  content: (props) => (<span className={css(styles.bold)}>{props.children}</span>),
 };
 
-
-function onVerseClick(props){
-  console.log("on verse click!!!");
-  console.dir(props);
-  props.setState(
-    { ...props.state, is_selected: !props.state.is_selected }
-  );
+function onVerseClick(props) {
+	props.setState(old => ({ ...old, isSelected: !old.isSelected }));
 }
 
-let style_verse = {
-  initial_state : {
-    is_selected: false,
+let styleVerse = {
+	initialState: {
+    isSelected: false,
   },
-  before : (props) => {
-    return (
-      <sup onClick={() => onVerseClick(props)}>
-        {props.style_data.verse}
-      </sup>
-    );
-  },
-  content: (props) => {
-    return (
-      <span style={{ backgroundColor: props.state.is_selected ? 'yellow' : 'inherit' }}
-            onClick={() => onVerseClick(props)}
-      >
-        {props.children}
-      </span>
-    );
-  },
-  after : (props) => {
-    return (<sub>{props.style_data.verse}</sub>);
-  }
+  before: (props) => (
+    <sup onClick={() => onVerseClick(props)}>
+      {props.styleData.verse}
+    </sup>
+  ),
+  content: (props) => (
+    <span
+			style={{ backgroundColor: props.state.isSelected ? 'yellow' : 'inherit' }}
+      onClick={() => onVerseClick(props)}
+    >
+      { props.children }
+    </span>
+  ),
+  after: (props) => (<sub>{props.styleData.verse}</sub>),
 };
 
 /*
-let style_footnote = {
+let styleFootnote = {
   before  : null,
 
   content : (props) => {
@@ -105,7 +86,7 @@ let style_footnote = {
     function onUnHover(e){
       props.ref_content.current.classList.remove('footnote_referenced');
     }
-    return (<span className={css.footnote_caller}
+    return (<span className={css.footnoteCaller}
                   onMouseEnter={onHover}
                   onMouseLeave={onUnHover}
             >
@@ -122,39 +103,39 @@ let styling = [
   { id    : 'v1',
     min   : 0,
     max   : 22,
-    style : style_verse,
+    style : styleVerse,
     data  : { verse: 1 },
   },
 
   { min   : 0,
     max   : 652,
-    style : style_paragraph,
+    style : styleParagraph,
   },
   { min   : 652,
     max   : 909,
-    style : style_paragraph,
+    style : styleParagraph,
   },
   { min   : 909,
     max   : 1546,
-    style : style_paragraph,
+    style : styleParagraph,
   },
   { min   : 1546,
     max   : 2155,
-    style : style_paragraph,
+    style : styleParagraph,
   },
   { id: 'v2',
     min   : 896,
     max   : 925,
-    style : style_verse,
+    style : styleVerse,
     data  : { verse: 1 },
   },
   { min   : 917,
     max   : 925,
-    style : style_bold,
+    style : styleBold,
   },
   { min   : 917,
     max   : 930,
-    style : style_under,
+    style : styleUnder,
   },
 ];
 
@@ -163,17 +144,17 @@ function App(){
   /*
   text = '0123456789';
   styling = [
-    { min: 1, max: 5, style: style_under },
-    { min: 2, max: 5, style: style_red,  },
-    { min: 3, max: 6, style: style_bold, },
+    { min: 1, max: 5, style: styleUnder },
+    { min: 2, max: 5, style: styleRed,  },
+    { min: 3, max: 6, style: styleBold, },
   ];
   text = 'ABCDEFGHIJKLMNOPQRSTUVWXYS';
   styling = [
-    { id: 1, min:  2, max:  7, style: style_red,  },
-    { id: 2, min:  5, max:  9, style: style_under },
-    { id: 3, min:  8, max: 13, style: style_bold },
-    { id: 4, min: 12, max: 20, style: style_red },
-    { id: 5, min: 14, max: 15, style: style_under },
+    { id: 1, min:  2, max:  7, style: styleRed,  },
+    { id: 2, min:  5, max:  9, style: styleUnder },
+    { id: 3, min:  8, max: 13, style: styleBold },
+    { id: 4, min: 12, max: 20, style: styleRed },
+    { id: 5, min: 14, max: 15, style: styleUnder },
     { id: 6, min: 17, max: 18,  style: style_under },
   ];
   */
