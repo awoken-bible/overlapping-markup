@@ -1,3 +1,12 @@
+- v0.3.0:
+  date: '2021-12-02'
+  name: 'TextWrapper and Prop Rename'
+  breaking:
+    - Rename all props from underscore_case to camelCase for better consistancy with built in React components
+  features:
+    - Add ability to wrap all plain text in a custom React component
+    - Update to react 17, as well as various outdated dev dependencies
+
 - v0.2.2:
   date: '2020-05-31'
   name: 'Superfluous Prop Fix'

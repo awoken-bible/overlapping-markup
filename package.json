@@ -7,7 +7,7 @@
     "url": "git+ssh://git@github.com/awoken-bible/overlapping-markup.git"
   },
   "licence": "MIT",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "devDependencies": {
     "aphrodite": "^2.4.0",
     "babel-core": "^6.26.3",
