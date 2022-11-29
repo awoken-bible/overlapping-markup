@@ -16,16 +16,16 @@
     "browserslist": "^4.16.5",
     "glob-parent": "^5.1.2",
     "immer": "^9.0.6",
-    "react": "^17.0.0",
-    "react-dom": "^17.0.0",
-    "react-scripts": "4.0.3",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-scripts": "^5.0.1",
     "webpack": "4.44.2",
     "webpack-cli": "^4.9.1"
   },
   "main": "dist/OverlappingMarkup.js",
   "peerDependencies": {
-    "react": "^17.0.0",
-    "react-dom": "^17.0.0"
+    "react": ">= 16.0.0 <= 18",
+    "react-dom": ">= 16.0.0 <= 18"
   },
   "scripts": {
     "start": "react-scripts start",
