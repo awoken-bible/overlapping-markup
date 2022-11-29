@@ -1,3 +1,12 @@
+- v0.4.0:
+  date: '2022-11-29'
+  name: 'Package Updates 2022'
+  features:
+    - Make peerDependencies more flexible, to support react v16 - v18
+  misc:
+    - Update webpack to v5
+    - Update react-scripts to v5
+
 - v0.3.0:
   date: '2021-12-02'
   name: 'TextWrapper and Prop Rename'
