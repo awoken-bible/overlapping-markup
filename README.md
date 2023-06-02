@@ -57,9 +57,10 @@ function App(){
 
 # Project Structure
 
-This repo is a hybrid of a react-app and a webpack project:
-- The react app is a demo application that can be launched by running ~npm run start~
-- The webpack project creates a single file =dist/OverlappingMarkup.js= which is distributed in the published NPM package, and is designed to be included by other react projects
+This project is a vite.js react app, containing both a dev server for testing, and a library build
+for publishing for use in other projects
+- index.html and src/index.jsx define the dev serer entry points
+- All vite config is in the single vite.config.js
 
 # Advanced Features
 
