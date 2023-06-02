@@ -20,16 +20,12 @@
     "react-dom": "^18.0.0",
     "vite": "^4.3.9"
   },
-	"main": "dist/overlapping-markup.es.js",
+	"main": "./dist/overlapping-markup.cjs.js",
+	"browser": "dist/overlapping-markup.es.js",
+	"module": "dist/overlapping-markup.es.js",
 	"files": [
 		"dist/"
 	],
-	"exports": {
-		".": {
-			"import": "./dist/overlapping-markup.es.js",
-			"require": "./dist/overlapping-markup.umd.js"
-		}
-	},
   "peerDependencies": {
     "react": ">= 16.0.0 <= 18",
     "react-dom": ">= 16.0.0 <= 18"
